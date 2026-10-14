@@ -18,14 +18,13 @@ def home():
 def chat(request: PromptRequest):
     try:
         response = client.models.generate_content(
-            model="gemini-3.8-flash",
+            model="gemini-1.5-flash",  # <--- Corregido aquí
             contents=f"Responde de forma concisa, elegante y profesional como J.A.R.V.I.S. de Iron Man: {request.prompt}"
         )
         return {"reply": response.text}
     except Exception as e:
         error_str = str(e)
         if "503" in error_str or "UNAVAILABLE" in error_str or "high demand" in error_str:
-            # Respuesta elegante simulando el estilo de Jarvis cuando hay saturación
             return {
                 "reply": "Señor, los servidores centrales experimentan un pico de tráfico temporal. Por favor, reintente en unos instantes."
             }
