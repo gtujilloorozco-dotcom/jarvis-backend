@@ -17,25 +17,24 @@ def home():
 
 @app.post("/chat")
 def chat(request: PromptRequest):
-    max_retries = 3
-    delay = 2
+    # Lista de modelos ordenados por preferencia
+    models_to_try = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-1.5-flash"]
     
-    last_error = None
-    for attempt in range(max_retries):
-        try:
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=f"Responde de forma concisa, elegante y profesional como J.A.R.V.I.S. de Iron Man: {request.prompt}"
-            )
-            return {"reply": response.text}
-        except Exception as e:
-            last_error = str(e)
-            # Si hay alta demanda u otro error temporal, esperamos y reintentamos
-            if "503" in last_error or "UNAVAILABLE" in last_error:
-                time.sleep(delay)
-                delay *= 2
-                continue
-            else:
-                break
+    last_error = ""
+    for model_name in models_to_try:
+        # Reintentamos hasta 2 veces por modelo en caso de picos repentinos
+        for attempt in range(2):
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=f"Responde de forma concisa, elegante y profesional como J.A.R.V.I.S. de Iron Man: {request.prompt}"
+                )
+                return {"reply": response.text}
+            except Exception as e:
+                last_error = str(e)
+                if "503" in last_error or "UNAVAILABLE" in last_error:
+                    time.sleep(1)
+                    continue
+                break # Si es otro tipo de error, pasa al siguiente modelo
                 
-    raise HTTPException(status_code=500, detail=last_error)
+    raise HTTPException(status_code=500, detail=f"Todos los modelos fallaron. Último error: {last_error}")
