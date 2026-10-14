@@ -23,4 +23,9 @@ def chat(request: PromptRequest):
         )
         return {"reply": response.text}
     except Exception as e:
-        return {"reply": f"EXCEPCIÓN INTERNA: {str(e)}"}
+        error_str = str(e)
+        if "503" in error_str or "UNAVAILABLE" in error_str or "high demand" in error_str:
+            return {
+                "reply": "Señor, los servidores centrales experimentan un pico de tráfico temporal. Por favor, reintente en unos instantes."
+            }
+        return {"reply": f"EXCEPCIÓN INTERNA: {error_str}"}
