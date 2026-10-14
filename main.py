@@ -17,13 +17,13 @@ def home():
 
 @app.post("/chat")
 def chat(request: PromptRequest):
-    # Lista de modelos ordenados por preferencia
-    models_to_try = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-1.5-flash"]
+    # Modelos válidos y actuales del SDK de Google GenAI
+    models_to_try = ["gemini-2.0-flash", "gemini-2.5-flash"]
     
     last_error = ""
     for model_name in models_to_try:
-        # Reintentamos hasta 2 veces por modelo en caso de picos repentinos
-        for attempt in range(2):
+        # Reintentamos hasta 4 veces por modelo si hay picos de demanda
+        for attempt in range(4):
             try:
                 response = client.models.generate_content(
                     model=model_name,
@@ -32,9 +32,11 @@ def chat(request: PromptRequest):
                 return {"reply": response.text}
             except Exception as e:
                 last_error = str(e)
-                if "503" in last_error or "UNAVAILABLE" in last_error:
-                    time.sleep(1)
+                # Si hay pico de demanda (503), esperamos un poco y reintentamos
+                if "503" in last_error or "UNAVAILABLE" in last_error or "high demand" in last_error:
+                    time.sleep(1.5)
                     continue
-                break # Si es otro tipo de error, pasa al siguiente modelo
+                # Si es otro error (por ejemplo modelo no encontrado), pasamos al siguiente modelo
+                break
                 
-    raise HTTPException(status_code=500, detail=f"Todos los modelos fallaron. Último error: {last_error}")
+    raise HTTPException(status_code=500, detail=f"Error en el servicio de Gemini: {last_error}")
