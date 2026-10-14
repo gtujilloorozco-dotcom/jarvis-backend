@@ -18,14 +18,10 @@ def home():
 def chat(request: PromptRequest):
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",  # <--- Corregido aquí
+            model="gemini-1.5-flash",
             contents=f"Responde de forma concisa, elegante y profesional como J.A.R.V.I.S. de Iron Man: {request.prompt}"
         )
         return {"reply": response.text}
     except Exception as e:
-        error_str = str(e)
-        if "503" in error_str or "UNAVAILABLE" in error_str or "high demand" in error_str:
-            return {
-                "reply": "Señor, los servidores centrales experimentan un pico de tráfico temporal. Por favor, reintente en unos instantes."
-            }
-        raise HTTPException(status_code=500, detail=error_str)
+        # Esto enviará el error exacto directamente a la pantalla de tu app para leerlo al instante
+        return {"reply": f"EXCEPCIÓN INTERNA: {str(e)}"}
