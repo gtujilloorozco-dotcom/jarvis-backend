@@ -18,7 +18,7 @@ def home():
 @app.post("/chat")
 def chat(request: PromptRequest):
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-1.5-flash",
         contents=f"Responde de forma concisa, elegante y profesional como J.A.R.V.I.S. de Iron Man: {request.prompt}"
     )
     return {"reply": response.text}
