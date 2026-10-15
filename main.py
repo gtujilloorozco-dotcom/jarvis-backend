@@ -16,14 +16,14 @@ def home():
 
 @app.post("/chat")
 def chat(request: PromptRequest):
-    prompt_formatted = f"Responde de forma concisa, elegante y profesional como J.A.R.V.I.S. de Iron Man: {request.prompt}"
+    prompt_formatted = f"Responde de forma muy concisa, elegante y directa como J.A.R.V.I.S. de Iron Man: {request.prompt}"
     
-    # Nombres de modelos actualizados para la API actual
+    # Modelos rápidos en orden de preferencia
     models_to_try = [
-        "gemini-3.8-flash",
         "gemini-2.5-flash",
-        "gemini-flash",
-        "gemini-2.0-flash"
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+        "gemini-3.8-flash"
     ]
     
     for model_name in models_to_try:
@@ -38,5 +38,5 @@ def chat(request: PromptRequest):
             continue
 
     return {
-        "reply": "Señor, los servidores centrales de Google experimentan alta demanda en este instante. Por favor, reintente en unos segundos."
+        "reply": "Señor, los servidores centrales experimentan alta demanda. Reintente en unos instantes."
     }
